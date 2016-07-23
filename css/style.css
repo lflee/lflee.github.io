@@ -1,12 +1,15 @@
 html {
 	height: auto;
+	text-align: center;
 }
 
 body{
 	font-family:Helvatica, sans-serif;
 	/*background:url(http://codepen.io/images/classy_fabric.png);*/
-  color:white;
+  /*color:white;*/
 	margin:0px;
+
+
 }
 #wrapper{
 	margin:0;
@@ -16,4 +19,7 @@ body{
 
 #name{
 	width: 100%;
+	/*text-align: center;*/
+	/*color: red;*/
+	/*background-color: yellow;*/
 }
