@@ -28,6 +28,12 @@
 
     <link rel="import" href="../bower_components/paper-input/paper-input.html">
     <link rel="import" href="../bower_components/paper-button/paper-button.html">
+    <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+    <link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
+
+    <!-- <link rel="import" href="x-translate.html"> -->
+
+
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="material.min.css">
@@ -47,6 +53,15 @@
       ga('send', 'pageview');
    </script>
 
+   <script type="text/javascript">
+      function i18n(){
+        //
+        // var element = document.getElementById("language") ;
+        //
+        // alert("inside i18n"+element.value);
+        document.getElementById("language").innerHTML="Ideally, clicking at this 🌐 let you choose your language ¯\_(ツ)_/¯";
+      }
+   </script>
 
   </head>
 
@@ -54,6 +69,59 @@
     <h1 id="language" onclick="i18n()">
       🌐
     </h1>
+
+    <!-- localize codes
+
+    <x-translate class="x-scope x-translate-0">
+
+
+        <div class="lang style-scope x-translate">
+          <span title="english" class="style-scope x-translate">🇬🇧 EN</span>
+          <paper-toggle-button id="switch" class="style-scope x-translate x-scope paper-toggle-button-0" role="button" aria-pressed="true" tabindex="0" style="touch-action: none;" toggles="" aria-disabled="false" active="" checked=""><div class="toggle-container style-scope paper-toggle-button"><div id="toggleBar" class="toggle-bar style-scope paper-toggle-button"></div><div id="toggleButton" class="toggle-button style-scope paper-toggle-button"><paper-ripple id="ink" recenters="" class="circle toggle-ink style-scope paper-toggle-button" checked="">
+
+
+        <div id="background" class="style-scope paper-ripple" style="opacity: 0.00834;"></div>
+        <div id="waves" class="style-scope paper-ripple"></div>
+      </paper-ripple></div></div><div class="toggle-label style-scope paper-toggle-button"></div></paper-toggle-button>
+          <span title="french" class="style-scope x-translate">FR 🇫🇷</span>
+        </div>
+
+        <h4 class="style-scope x-translate">Traduction et localisation</h4>
+        <div class="snippet style-scope x-translate">
+          <div class="demo style-scope x-translate">
+            <div class="style-scope x-translate">Bonjour!</div>
+            <div class="style-scope x-translate">Je m'appelle Batman</div>
+            <div class="style-scope x-translate">J'ai 10&nbsp;000 chats. Près de 42&nbsp;% d'entre eux sont noirs.</div>
+            <div class="style-scope x-translate">La vente commence le 1 janv. 1970 à 08:00. Tout est à 10,00&nbsp;$US.</div>
+          </div>
+          <div class="code style-scope x-translate">
+            <code class="style-scope x-translate">localize('greeting')</code>
+            <code class="style-scope x-translate">localize('intro', 'name', 'Batman')</code>
+            <code class="style-scope x-translate">localize('cats', 'numCats', 10000, 'pctBlack', 0.42)</code>
+            <!-- Dates need to be a valid JavaScript object. For an example, we
+              are passing a number of milliseconds from the epoch -->
+              <!--
+            <code class="style-scope x-translate">localize('sale', 'start', 150, 'time', 15, 'price', 10)</code>
+          </div>
+        </div>
+
+        <h4 class="style-scope x-translate">Pluriels et les sexes</h4>
+        <div class="snippet style-scope x-translate">
+          <div class="demo style-scope x-translate">
+            <div class="style-scope x-translate">pas de pommes / une pomme/ 3 pommes</div>
+            <div class="style-scope x-translate">Robin  mange une banane chez lui.</div>
+            <div class="style-scope x-translate">Robin ne mange pas de bananes chez elle.</div>
+            <div class="style-scope x-translate">Robin  mange 4 bananes chez eux.</div>
+          </div>
+          <div class="code style-scope x-translate">
+            <code class="style-scope x-translate">localize('fruit', 'num', 0) / localize('fruit', 'num', 1) / localize('fruit', 'num', 3)</code>
+            <code class="style-scope x-translate">localize('bananas', 'name', 'Robin', 'gender', 'male', 'num', 1)</code>
+            <code class="style-scope x-translate">localize('bananas', 'name', 'Robin', 'gender', 'female', 'num', 0)</code>
+            <code class="style-scope x-translate">localize('bananas', 'name', 'Robin', 'gender', 'other', 'num', 4)</code>
+          </div>
+        </div>
+      </x-translate>
+ -->
 
 
     <h1 id="name">

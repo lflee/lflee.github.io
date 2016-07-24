@@ -4,7 +4,7 @@ song.src = 'Instruments.m4a';
 
 song.autoplay = true;
 
-document.getElementById('wrapper').appendChild(song);
+// document.getElementById('wrapper').appendChild(song);
 
 
 // shim layer with setTimeout fallback (Paul Irish)
@@ -300,355 +300,359 @@ NavierStokes.prototype = {
         }
 };
 
-
-var Display = function(canvas){
-                            this.colorFunctions = {  "BW"  : this.calcColorBW ,
-                                                "Color": this.calcColor,
-                                        "User" : this.calcUserColor};
-                            this.currColorFunc = "User";
-                this.canvas = canvas;
-  this.context = canvas.getContext("2d", {alpha : false});
-                this.supportImageData = !!this.context.getImageData;
-
-                            this.colorUser = {
-                  R : 50,
-                  G : 50,
-                  B : 50
-                              }
-
-};
-
-Display.prototype = {
-
-            init : function (res){
-                this.calcResolution = res;
-                this.imageData = null;
-                this.showColors = false;
-                            this.line = null;
-            },
-
-            density : function(D, U, V){
-                var r,g,b, x, y, d;
-
-                if (this.supportImageData){
-                    // Get Image Data
-                    if (this.imageData  === null){
-                        this.imageData = this.context.getImageData(0, 0, this.calcResolution, this.calcResolution);
-                    }
+//
+// var Display = function(canvas){
+//                             this.colorFunctions = {  "BW"  : this.calcColorBW ,
+//                                                 "Color": this.calcColor,
+//                                         "User" : this.calcUserColor};
+//                             this.currColorFunc = "User";
+//                 this.canvas = canvas;
+//   this.context = canvas.getContext("2d", {alpha : false});
+//                 this.supportImageData = !!this.context.getImageData;
+//
+//                             this.colorUser = {
+//                   R : 50,
+//                   G : 50,
+//                   B : 50
+//                               }
+//
+// };
+//
 
 
-                    for (x = 0; x < this.calcResolution; x++) {
-                        for (y = 0; y < this.calcResolution; y++){
-                            var posC = (x + y * this.calcResolution) * 4;
-                                  var pos = fluid.IX[x][y];
-
-                            var cArray = this.colorFunctions[this.currColorFunc].call(this, D, U, V, pos);
-
-                            this.imageData.data[posC]     = cArray[0]; // R
-                            this.imageData.data[posC + 1] = cArray[1]; // G
-                            this.imageData.data[posC + 2] = cArray[2]; // B
-                            this.imageData.data[posC + 3] = 255; //A
-                        }
-                    }
-                    this.context.putImageData(this.imageData, 0, 0);
-                }else{
-                    // Slow fallback for oldie
-                    for (x = 0; x < this.calcResolution; x++) {
-                        for (y = 0; y < this.calcResolution; y++) {
-                            var pos = fluid.IX[x][y];
-                            var c =(D[pos] / 2);
-                            this.context.setFillColor(c , c, c , 1);
-                            this.context.fillRect(x, y, 1, 1);
-                        }
-                    }
-                }
-              // Draw the line for creating an Emitter
-              if (this.line != null){
-                this.context.beginPath();
-                            this.context.lineWidth = 1;
-                this.context.strokeStyle  = "rgb(255,255,255)";
-                this.context.moveTo(this.line[0][0],this.line[0][1]);
-                this.context.lineTo(this.line[1][0],this.line[1][1]);
-                    this.context.stroke();
-              }
-            },
-
-            setColorFunction: function(colorFuncName){
-              this.currColorFunc = "BW";
-            },
-
-            calcColorBW : function(D, U, V, pos){
-                var bw = (D[pos] * 255 / 6) | 0;
-                return [bw, bw, bw];
-            },
-
-            calcColor : function(D, U, V, pos){
-                var r =  Math.abs((U[pos] * 1300 )   | 0);
-                var b =  Math.abs((V[pos] * 1300 )   | 0);
-                var g = (D[pos] * 255 / 6) | 0;
-
-                return [r, g, b];
-            },
-
-           calcUserColor : function(D, U, V, pos){
-                var r =  Math.abs((U[pos] *500* this.colorUser.R)   | 0);
-                var g = (D[pos] *  this.colorUser.G) | 0;
-                var b =  Math.abs((V[pos] *500* this.colorUser.B )   | 0);
-
-                return [r, g, b];
-            },
-
-            drawLine : function (a0, a1, scale){
-                    var l0 = [a0[0]*scale, a0[1]*scale];
-                    var l1 = [a1[0]*scale, a1[1]*scale];
-
-                    this.line = [l0, l1];
-            },
-
-            removeLine : function(){this.line = null},
-  };
-
-
-
-        var user = {
-            displaySize : 500,
-            canvas : null,
-            canvasOffset : null,
-            scale : 0,
-
-            mouseStart: [],
-            mouseEnd  : [],
-            mouseLeftDown : false,
-            mousePath : [],
-
-            mouseRightDown : false,
-            mouseRightStart : [],
-
-            forceEmitters : [],
-
-            insertedDensity : 50,
-
-            init : function(canvas){
-                this.canvas = $(canvas);
-
-                this.canvasOffset = this.canvas.offset();
-
-                var that = this;
-                window.ontouchend = window.onmouseup   = function(e){that.handleInputEnd(e);};
-                canvas.ontouchstart = canvas.onmousedown = function(e){that.handleInput(e);};
-                canvas.ontouchmove = canvas.onmousemove = function(e){that.handleInputMove(e);};
-                canvas.oncontextmenu = function(e){e.preventDefault();};
-
-                canvas.ontouchstart = function(e){that.handleInput(e);};
-                canvas.ontouchmove  = function(e){that.handleInputMove(e);};
-                window.ontouchend   = function(e){that.handleInputEnd(e);};
-            },
-            interact : function(D, U, V, size){
-                    var x, y, pos, i ;
-
-                    if (this.mouseLeftDown){
-                            var dx =  this.mouseStart[0] -  this.mouseEnd[0];
-                            var dy =  this.mouseStart[1] -  this.mouseEnd[1];
-
-                            var mousePathLength = Math.sqrt(dx * dx + dy * dy) | 0;
-                            mousePathLength = (mousePathLength < 1) ? 1 : mousePathLength;
-                            for ( i = 0; i < mousePathLength; i++) {
-                                x = (((this.mouseStart[0]  - (i / mousePathLength) * dx)) * this.scale) | 0;
-                                y = (((this.mouseStart[1]  - (i / mousePathLength) * dy)) * this.scale) | 0;
-
-                                pos = fluid.IX[x][y];
-
-                                U[pos] = -dx / 6;
-                                V[pos] = -dy / 6;
-                                D[pos] = this.insertedDensity;
-                             }
-                            this.mouseStart[0] = this.mouseEnd[0];
-                            this.mouseStart[1] = this.mouseEnd[1];
-                    }
-
-                    for (i = 0;i<this.forceEmitters.length;i++){
-                                var posDir = this.forceEmitters[i];
-                            var pos = fluid.IX[posDir[0]*this.scale | 0][posDir[1]*this.scale | 0];
-                            U[pos] = posDir[2];
-                            V[pos] = posDir[3];
-                    }
-
-            },
-            initFluidWithResolution : function(){
-                    fluid.init();
-                  this.setCanvasSize(fluid.settings.resolution);
-                  display.init(fluid.settings.resolution);
-            },
-            clearDisplay : function(){
-                fluid.clear();
-                this.forceEmitters = [];
-            },
-
-            setDisplay : function(e){
-              var displaySize = parseInt(e);
-              if (displaySize === 0){ // 1:1
-                this.setDisplaySize(fluid.getSettings().resolution);
-              }else{
-                this.setDisplaySize(displaySize);
-              }
-            },
-            setCanvasSize : function(size){
-                this.canvas.attr("width", size);
-                this.canvas.attr("height", size);
-                this.calculateScale();
-            },
-
-                setDisplaySize : function(size){
-                    $('#wrapper').width(size);
-                    this.canvas.width(size);
-                    this.canvas.height(size);
-                this.calculateScale();
-            },
-
-            calculateScale : function(){
-                this.scale = fluid.getResolution() / this.canvas.width();
-                this.canvasOffset = this.canvas.offset();
-            },
-
-            handleInput : function(e){
-                if (e.type === "touchstart"){
-                    this.mouseLeftDown = true;
-                    this.mouseEnd  = this.mouseStart = [e.pageX - this.canvasOffset.left, e.pageY - this.canvasOffset.top];
-                }else if (e.button !== undefined){
-                  var mPos = this.getMousePositon(e);
-                  if (e.button == 0){
-                      this.mouseLeftDown = true;
-                        this.mouseEnd  = this.mouseStart =  mPos;
-                    }else if (e.button == 2){
-                        this.mouseRightDown  = true;
-                        this.mouseRightStart = mPos;
-                  }
-                }
-                e.preventDefault();
-            },
-
-            handleInputMove : function(e){
-                var mPos = this.getMousePositon(e);
-                if (this.mouseLeftDown){
-                    if (e.type === "touchmove"){
-                        this.mouseEnd = [e.pageX - this.canvasOffset.left, e.pageY - this.canvasOffset.top];
-                    }else{
-                        this.mouseEnd = mPos;
-                    }
-                }
-                if (this.mouseRightDown){
-                        display.drawLine(this.mouseRightStart, mPos, this.scale);
-                }
-            },
-            handleInputEnd : function(e){
-                    this.mouseLeftDown = false;
-                if (this.mouseRightDown){
-                    this.mouseRightDown = false;
-                    var endPos = this.getMousePositon(e);
-                    var x = this.mouseRightStart[0];
-                    var y = this.mouseRightStart[1];
-
-                    var dx = -(x - endPos[0]) / 10;
-                    var dy = -(y - endPos[1]) / 10;
-                        this.forceEmitters.push([x, y, dx, dy]);
-                    display.removeLine();
-                }
-          },
-          getMousePositon : function (e){
-            var mouseX, mouseY;
-
-            if(e.offsetX) {
-                mouseX = e.offsetX;
-                mouseY = e.offsetY;
-            }
-            else if(e.layerX) {
-                mouseX = e.layerX;
-                mouseY = e.layerY;
-            }
-            return [mouseX, mouseY];
-          }
-        };
-
-
-
-        var canvas = document.getElementById("d");
-
-
-                var display = new Display(canvas);
-            var fluid = new NavierStokes({callbackDisplay : function(D, U, V, size){
-                                           display.density(D, U, V, size);
-                                         },callbackUser    : function(D, U, V, size){
-                                           user.interact(D, U, V, size);
-                                         }});
-
-
-        user.init(canvas, fluid, display);
-        user.initFluidWithResolution();
-
-        // FPS Counter by Phrogz (http://stackoverflow.com/questions/4787431/check-fps-in-js)
-        var filterStrength = 20;
-        var frameTime = 0, lastLoop = new Date, thisLoop;
-        var fpsOut = document.getElementById('fps');
-
-        //Start Simulation
-        function simulation(){
-            window.requestAnimFrame(simulation);
-            var thisFrameTime = (thisLoop=new Date) - lastLoop;
-            frameTime+= (thisFrameTime - frameTime) / filterStrength;
-            lastLoop = thisLoop;
-            fluid.update();
-        };
-
-        // Run Simulation
-        simulation();
-
-        // Update FPS
-        // setInterval(function(){
-        //   fpsOut.innerHTML = (1000/frameTime).toFixed(1) + " fps";
-        // },1000);
-
-        // dat.GUI Settings
-        // var gui = new dat.GUI();
-        //         var fluidFolder = gui.addFolder("Fluid");
-        //
-        // fluidFolder.add(fluid.settings, 'resolution', [64,128,256,512]).onFinishChange(function(e){
-        //     fluid.settings.resolution = parseInt(e);
-        //     user.initFluidWithResolution();
-        // });
-        //
-        // fluidFolder.add(fluid.settings, 'iterations', 1, 100).onFinishChange(function(e){
-        //     fluid.settings.iterations = parseInt(e);
-        // });
-        //
-        //         fluidFolder.add(fluid.settings, 'diffusion', 0.9000000, 1.1000000)
-        //
-        // fluidFolder.add(fluid.settings, 'dt', -1, 1).onChange(function(e){
-        //         fluid.calculateSettings();
-        // });
-        //
-        // fluidFolder.add(user, 'insertedDensity', 0, 200).onFinishChange(function(e){
-        //     user.insertedDensity = parseInt(e);
-        // });
-        //         fluidFolder.open()
-        //
-        //         var displayFolder = gui.addFolder("Display");
-        //
-        //         displayFolder.add(user, 'displaySize', 0,900).onChange(function(e){
-        //         user.setDisplay(e);
-        // });
-        //
-        //
-        // var currColorFunc = displayFolder.add(display, 'currColorFunc', {"Black & White" : "BW", "Color" : "Color", "User Defined" : "User"});
-        //
-        // var setColorFuncToUser = function(){
-        //         display.currColorFunc = "User";
-        //     currColorFunc.updateDisplay();
-        // }
-        //
-        //         displayFolder.add(display.colorUser, 'R', 0, 1000).name("R:").onChange(setColorFuncToUser);
-        //         displayFolder.add(display.colorUser, 'G', 0, 1000).name("G:").onChange(setColorFuncToUser);
-        //         displayFolder.add(display.colorUser, 'B', 0, 1000).name("B:").onChange(setColorFuncToUser);
-        //         displayFolder.open();
-        //
-        //
-        //         gui.add(user, 'clearDisplay').name('Clear');
+//
+// Display.prototype = {
+//
+//             init : function (res){
+//                 this.calcResolution = res;
+//                 this.imageData = null;
+//                 this.showColors = false;
+//                             this.line = null;
+//             },
+//
+//             density : function(D, U, V){
+//                 var r,g,b, x, y, d;
+//
+//                 if (this.supportImageData){
+//                     // Get Image Data
+//                     if (this.imageData  === null){
+//                         this.imageData = this.context.getImageData(0, 0, this.calcResolution, this.calcResolution);
+//                     }
+//
+//
+//                     for (x = 0; x < this.calcResolution; x++) {
+//                         for (y = 0; y < this.calcResolution; y++){
+//                             var posC = (x + y * this.calcResolution) * 4;
+//                                   var pos = fluid.IX[x][y];
+//
+//                             var cArray = this.colorFunctions[this.currColorFunc].call(this, D, U, V, pos);
+//
+//                             this.imageData.data[posC]     = cArray[0]; // R
+//                             this.imageData.data[posC + 1] = cArray[1]; // G
+//                             this.imageData.data[posC + 2] = cArray[2]; // B
+//                             this.imageData.data[posC + 3] = 255; //A
+//                         }
+//                     }
+//                     this.context.putImageData(this.imageData, 0, 0);
+//                 }else{
+//                     // Slow fallback for oldie
+//                     for (x = 0; x < this.calcResolution; x++) {
+//                         for (y = 0; y < this.calcResolution; y++) {
+//                             var pos = fluid.IX[x][y];
+//                             var c =(D[pos] / 2);
+//                             this.context.setFillColor(c , c, c , 1);
+//                             this.context.fillRect(x, y, 1, 1);
+//                         }
+//                     }
+//                 }
+//               // Draw the line for creating an Emitter
+//               if (this.line != null){
+//                 this.context.beginPath();
+//                             this.context.lineWidth = 1;
+//                 this.context.strokeStyle  = "rgb(255,255,255)";
+//                 this.context.moveTo(this.line[0][0],this.line[0][1]);
+//                 this.context.lineTo(this.line[1][0],this.line[1][1]);
+//                     this.context.stroke();
+//               }
+//             },
+//
+//             setColorFunction: function(colorFuncName){
+//               this.currColorFunc = "BW";
+//             },
+//
+//             calcColorBW : function(D, U, V, pos){
+//                 var bw = (D[pos] * 255 / 6) | 0;
+//                 return [bw, bw, bw];
+//             },
+//
+//             calcColor : function(D, U, V, pos){
+//                 var r =  Math.abs((U[pos] * 1300 )   | 0);
+//                 var b =  Math.abs((V[pos] * 1300 )   | 0);
+//                 var g = (D[pos] * 255 / 6) | 0;
+//
+//                 return [r, g, b];
+//             },
+//
+//            calcUserColor : function(D, U, V, pos){
+//                 var r =  Math.abs((U[pos] *500* this.colorUser.R)   | 0);
+//                 var g = (D[pos] *  this.colorUser.G) | 0;
+//                 var b =  Math.abs((V[pos] *500* this.colorUser.B )   | 0);
+//
+//                 return [r, g, b];
+//             },
+//
+//             drawLine : function (a0, a1, scale){
+//                     var l0 = [a0[0]*scale, a0[1]*scale];
+//                     var l1 = [a1[0]*scale, a1[1]*scale];
+//
+//                     this.line = [l0, l1];
+//             },
+//
+//             removeLine : function(){this.line = null},
+//   };
+//
+//
+//
+//         var user = {
+//             displaySize : 500,
+//             canvas : null,
+//             canvasOffset : null,
+//             scale : 0,
+//
+//             mouseStart: [],
+//             mouseEnd  : [],
+//             mouseLeftDown : false,
+//             mousePath : [],
+//
+//             mouseRightDown : false,
+//             mouseRightStart : [],
+//
+//             forceEmitters : [],
+//
+//             insertedDensity : 50,
+//
+//             init : function(canvas){
+//                 this.canvas = $(canvas);
+//
+//                 this.canvasOffset = this.canvas.offset();
+//
+//                 var that = this;
+//                 window.ontouchend = window.onmouseup   = function(e){that.handleInputEnd(e);};
+//                 canvas.ontouchstart = canvas.onmousedown = function(e){that.handleInput(e);};
+//                 canvas.ontouchmove = canvas.onmousemove = function(e){that.handleInputMove(e);};
+//                 canvas.oncontextmenu = function(e){e.preventDefault();};
+//
+//                 canvas.ontouchstart = function(e){that.handleInput(e);};
+//                 canvas.ontouchmove  = function(e){that.handleInputMove(e);};
+//                 window.ontouchend   = function(e){that.handleInputEnd(e);};
+//             },
+//             interact : function(D, U, V, size){
+//                     var x, y, pos, i ;
+//
+//                     if (this.mouseLeftDown){
+//                             var dx =  this.mouseStart[0] -  this.mouseEnd[0];
+//                             var dy =  this.mouseStart[1] -  this.mouseEnd[1];
+//
+//                             var mousePathLength = Math.sqrt(dx * dx + dy * dy) | 0;
+//                             mousePathLength = (mousePathLength < 1) ? 1 : mousePathLength;
+//                             for ( i = 0; i < mousePathLength; i++) {
+//                                 x = (((this.mouseStart[0]  - (i / mousePathLength) * dx)) * this.scale) | 0;
+//                                 y = (((this.mouseStart[1]  - (i / mousePathLength) * dy)) * this.scale) | 0;
+//
+//                                 pos = fluid.IX[x][y];
+//
+//                                 U[pos] = -dx / 6;
+//                                 V[pos] = -dy / 6;
+//                                 D[pos] = this.insertedDensity;
+//                              }
+//                             this.mouseStart[0] = this.mouseEnd[0];
+//                             this.mouseStart[1] = this.mouseEnd[1];
+//                     }
+//
+//                     for (i = 0;i<this.forceEmitters.length;i++){
+//                                 var posDir = this.forceEmitters[i];
+//                             var pos = fluid.IX[posDir[0]*this.scale | 0][posDir[1]*this.scale | 0];
+//                             U[pos] = posDir[2];
+//                             V[pos] = posDir[3];
+//                     }
+//
+//             },
+//             initFluidWithResolution : function(){
+//                     fluid.init();
+//                   this.setCanvasSize(fluid.settings.resolution);
+//                   display.init(fluid.settings.resolution);
+//             },
+//             clearDisplay : function(){
+//                 fluid.clear();
+//                 this.forceEmitters = [];
+//             },
+//
+//             setDisplay : function(e){
+//               var displaySize = parseInt(e);
+//               if (displaySize === 0){ // 1:1
+//                 this.setDisplaySize(fluid.getSettings().resolution);
+//               }else{
+//                 this.setDisplaySize(displaySize);
+//               }
+//             },
+//             setCanvasSize : function(size){
+//                 this.canvas.attr("width", size);
+//                 this.canvas.attr("height", size);
+//                 this.calculateScale();
+//             },
+//
+//                 setDisplaySize : function(size){
+//                     $('#wrapper').width(size);
+//                     this.canvas.width(size);
+//                     this.canvas.height(size);
+//                 this.calculateScale();
+//             },
+//
+//             calculateScale : function(){
+//                 this.scale = fluid.getResolution() / this.canvas.width();
+//                 this.canvasOffset = this.canvas.offset();
+//             },
+//
+//             handleInput : function(e){
+//                 if (e.type === "touchstart"){
+//                     this.mouseLeftDown = true;
+//                     this.mouseEnd  = this.mouseStart = [e.pageX - this.canvasOffset.left, e.pageY - this.canvasOffset.top];
+//                 }else if (e.button !== undefined){
+//                   var mPos = this.getMousePositon(e);
+//                   if (e.button == 0){
+//                       this.mouseLeftDown = true;
+//                         this.mouseEnd  = this.mouseStart =  mPos;
+//                     }else if (e.button == 2){
+//                         this.mouseRightDown  = true;
+//                         this.mouseRightStart = mPos;
+//                   }
+//                 }
+//                 e.preventDefault();
+//             },
+//
+//             handleInputMove : function(e){
+//                 var mPos = this.getMousePositon(e);
+//                 if (this.mouseLeftDown){
+//                     if (e.type === "touchmove"){
+//                         this.mouseEnd = [e.pageX - this.canvasOffset.left, e.pageY - this.canvasOffset.top];
+//                     }else{
+//                         this.mouseEnd = mPos;
+//                     }
+//                 }
+//                 if (this.mouseRightDown){
+//                         display.drawLine(this.mouseRightStart, mPos, this.scale);
+//                 }
+//             },
+//             handleInputEnd : function(e){
+//                     this.mouseLeftDown = false;
+//                 if (this.mouseRightDown){
+//                     this.mouseRightDown = false;
+//                     var endPos = this.getMousePositon(e);
+//                     var x = this.mouseRightStart[0];
+//                     var y = this.mouseRightStart[1];
+//
+//                     var dx = -(x - endPos[0]) / 10;
+//                     var dy = -(y - endPos[1]) / 10;
+//                         this.forceEmitters.push([x, y, dx, dy]);
+//                     display.removeLine();
+//                 }
+//           },
+//           getMousePositon : function (e){
+//             var mouseX, mouseY;
+//
+//             if(e.offsetX) {
+//                 mouseX = e.offsetX;
+//                 mouseY = e.offsetY;
+//             }
+//             else if(e.layerX) {
+//                 mouseX = e.layerX;
+//                 mouseY = e.layerY;
+//             }
+//             return [mouseX, mouseY];
+//           }
+//         };
+//
+//
+//
+//         var canvas = document.getElementById("d");
+//
+//
+//                 var display = new Display(canvas);
+//             var fluid = new NavierStokes({callbackDisplay : function(D, U, V, size){
+//                                            display.density(D, U, V, size);
+//                                          },callbackUser    : function(D, U, V, size){
+//                                            user.interact(D, U, V, size);
+//                                          }});
+//
+//
+//         user.init(canvas, fluid, display);
+//         user.initFluidWithResolution();
+//
+//         // FPS Counter by Phrogz (http://stackoverflow.com/questions/4787431/check-fps-in-js)
+//         var filterStrength = 20;
+//         var frameTime = 0, lastLoop = new Date, thisLoop;
+//         var fpsOut = document.getElementById('fps');
+//
+//         //Start Simulation
+//         function simulation(){
+//             window.requestAnimFrame(simulation);
+//             var thisFrameTime = (thisLoop=new Date) - lastLoop;
+//             frameTime+= (thisFrameTime - frameTime) / filterStrength;
+//             lastLoop = thisLoop;
+//             fluid.update();
+//         };
+//
+//         // Run Simulation
+//         simulation();
+//
+//         // Update FPS
+//         // setInterval(function(){
+//         //   fpsOut.innerHTML = (1000/frameTime).toFixed(1) + " fps";
+//         // },1000);
+//
+//         // dat.GUI Settings
+//         // var gui = new dat.GUI();
+//         //         var fluidFolder = gui.addFolder("Fluid");
+//         //
+//         // fluidFolder.add(fluid.settings, 'resolution', [64,128,256,512]).onFinishChange(function(e){
+//         //     fluid.settings.resolution = parseInt(e);
+//         //     user.initFluidWithResolution();
+//         // });
+//         //
+//         // fluidFolder.add(fluid.settings, 'iterations', 1, 100).onFinishChange(function(e){
+//         //     fluid.settings.iterations = parseInt(e);
+//         // });
+//         //
+//         //         fluidFolder.add(fluid.settings, 'diffusion', 0.9000000, 1.1000000)
+//         //
+//         // fluidFolder.add(fluid.settings, 'dt', -1, 1).onChange(function(e){
+//         //         fluid.calculateSettings();
+//         // });
+//         //
+//         // fluidFolder.add(user, 'insertedDensity', 0, 200).onFinishChange(function(e){
+//         //     user.insertedDensity = parseInt(e);
+//         // });
+//         //         fluidFolder.open()
+//         //
+//         //         var displayFolder = gui.addFolder("Display");
+//         //
+//         //         displayFolder.add(user, 'displaySize', 0,900).onChange(function(e){
+//         //         user.setDisplay(e);
+//         // });
+//         //
+//         //
+//         // var currColorFunc = displayFolder.add(display, 'currColorFunc', {"Black & White" : "BW", "Color" : "Color", "User Defined" : "User"});
+//         //
+//         // var setColorFuncToUser = function(){
+//         //         display.currColorFunc = "User";
+//         //     currColorFunc.updateDisplay();
+//         // }
+//         //
+//         //         displayFolder.add(display.colorUser, 'R', 0, 1000).name("R:").onChange(setColorFuncToUser);
+//         //         displayFolder.add(display.colorUser, 'G', 0, 1000).name("G:").onChange(setColorFuncToUser);
+//         //         displayFolder.add(display.colorUser, 'B', 0, 1000).name("B:").onChange(setColorFuncToUser);
+//         //         displayFolder.open();
+//         //
+//         //
+//         //         gui.add(user, 'clearDisplay').name('Clear');
+//

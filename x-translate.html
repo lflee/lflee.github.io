@@ -1,0 +1,95 @@
+
+<!-- saved from url=(0097)https://elements.polymer-project.org/bower_components/app-localize-behavior/demo/x-translate.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!-- Shady DOM styles for custom-style --><!-- Shady DOM styles for dom-template --><!-- Shady DOM styles for dom-repeat --><!-- Shady DOM styles for array-selector --><!-- Shady DOM styles for dom-if --><!-- Shady DOM styles for iron-meta --><!-- Shady DOM styles for iron-meta-query --><!-- Shady DOM styles for paper-ripple --><style scope="paper-ripple">paper-ripple {
+  display: block;
+        position: absolute;
+        border-radius: inherit;
+        overflow: hidden;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+
+        
+        pointer-events: none;
+}
+
+paper-ripple[animating] {
+  -webkit-transform: translate(0, 0);
+        transform: translate3d(0, 0, 0);
+}
+
+#background.paper-ripple,#waves.paper-ripple,.wave-container.paper-ripple,.wave.paper-ripple {
+  pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+}
+
+#background.paper-ripple,.wave.paper-ripple {
+  opacity: 0;
+}
+
+#waves.paper-ripple,.wave.paper-ripple {
+  overflow: hidden;
+}
+
+.wave-container.paper-ripple,.wave.paper-ripple {
+  border-radius: 50%;
+}
+
+paper-ripple.circle #background.paper-ripple,paper-ripple.circle #waves.paper-ripple {
+  border-radius: 50%;
+}
+
+paper-ripple.circle .wave-container.paper-ripple {
+  overflow: hidden;
+}</style><!-- Shady DOM styles for paper-toggle-button --><!-- Shady DOM styles for iron-request --><!-- Shady DOM styles for iron-ajax --><!-- Shady DOM styles for iron-icon --><!-- Shady DOM styles for iron-iconset-svg --><!-- Shady DOM styles for marked-element --><style scope="marked-element">.hidden.marked-element {
+  display: none !important;
+}</style><!-- Shady DOM styles for paper-icon-button --><!-- Shady DOM styles for prism-highlighter --><!-- Shady DOM styles for demo-snippet --><!-- Shady DOM styles for x-translate --><link rel="import" href="https://elements.polymer-project.org/bower_components/polymer/polymer.html">
+<link rel="import" href="https://elements.polymer-project.org/bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="https://elements.polymer-project.org/bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="https://elements.polymer-project.org/bower_components/app-localize-behavior/demo/common-styles.html">
+
+</head><body><dom-module id="x-translate">
+  <template></template>
+
+  <script>
+    Polymer({
+      is: "x-translate",
+
+      behaviors: [
+        Polymer.AppLocalizeBehavior
+      ],
+
+      properties: {
+        /* Overriden from AppLocalizeBehavior */
+        language: {
+          value: 'en',
+          type: String
+        },
+
+        /* Overriden from AppLocalizeBehavior */
+        formats: {
+          type: Object,
+          value: function() {
+            return {
+              number: { USD: { style: 'currency', currency: 'USD' } }
+            };
+          }
+        }
+      },
+
+      attached: function() {
+        this.loadResources(this.resolveUrl('locales.json'));
+      },
+
+      _toggle: function() {
+        this.language = this.$.switch.checked ? 'fr' : 'en';
+      }
+    });
+  </script>
+</dom-module>
+</body></html>
