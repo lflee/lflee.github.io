@@ -8,9 +8,8 @@ body{
 	/*background:url(http://codepen.io/images/classy_fabric.png);*/
   /*color:white;*/
 	margin:0px;
-
-
 }
+
 #wrapper{
 	margin:0;
   width:100%;
@@ -22,4 +21,8 @@ body{
 	/*text-align: center;*/
 	/*color: red;*/
 	/*background-color: yellow;*/
+}
+
+h1{
+	background-color: aquamarine
 }
