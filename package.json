@@ -1,5 +1,33 @@
 {
-  "dependencies": {
-    "@polymer/polymer": "^3.0.0-pre.11"
-  }
+  "name": "fung",
+  "version": "1.0.0",
+  "description": "峰's page",
+  "devDependencies": {
+    "browser-sync": "^2.24.4",
+    "comlinkjs": "^2.4.1",
+    "del": "^1.2.0",
+    "es6-promise": "^3.2.1",
+    "eslint": "^4.19.1",
+    "eslint-config-google": "^0.9.1",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^2.3.1",
+    "gulp-cache": "^0.2.10",
+    "gulp-changed": "^1.2.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-csso": "^1.0.0",
+    "gulp-if": "^2.0.2",
+    "gulp-imagemin": "^4.1.0",
+    "gulp-jshint": "^2.1.0",
+    "gulp-load-plugins": "^1.0.0-rc.1",
+    "gulp-minify-html": "^1.0.3",
+    "gulp-size": "^1.2.3",
+    "gulp-uglify": "^1.2.0",
+    "gulp-uncss": "^1.0.2",
+    "gulp-useref": "^3.1.5",
+    "run-sequence": "^1.1.1",
+    "sw-precache": "^5.2.1"
+  },
+  "author": "峰",
+  "license": "Apache-2.0",
+  "homepage": "https://lflee.github.io/"
 }
