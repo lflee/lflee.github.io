@@ -1,6 +1,6 @@
 // audio
 var song = new Audio();
-song.src = 'Instruments.m4a';
+song.src = '黑色午夜 bass.wav';
 
 song.autoplay = true;
 
