@@ -18,10 +18,10 @@ body{
 }
 
 #name{
-	width: 100%;
+	width: 750%;
 	/*text-align: center;*/
 	/*color: red;*/
-	background-color: yellow;
+	background-image: linear-gradient(to bottom right,white, yellow, pink, white, yellow);
 }
 
 h1{
